@@ -5,4 +5,3 @@ Dockerized version of the [Radiusdesk Project](https://www.radiusdesk.com/wiki24
 ## Quickstart
 Ensure you have docker and docker compose installed and simply run: `docker compose up -d`.
 
-### Production
