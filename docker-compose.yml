@@ -1,14 +1,40 @@
-version: '3'
 services:
   radiusdesk:
-    image: keegan337/radiusdesk:v3
-    container_name: inethi-radiusdesk
-    restart: always
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.radiusdesk.rule=Host(`${TRAEFIK_API_RULE_RADIUSDESK}`)"
-      - "traefik.http.routers.radiusdesk.entrypoints=${TRAEFIK_ENTRYPOINT}"
-networks:
-  default:
-    external:
-      name: "${INETHI_NETWORK}"
+    image: keegan337/radiusdesk:4.0.0
+    container_name: radiusdesk
+    environment:
+      - "PHP_INI_SCAN_DIR=:/p/gd"
+      - "PHP.cgi.fix_pathinfo=1"
+      - "PHP_SELF=/index.php"
+      - "PHP_INI_SCAN_DIR=:/p/sqlite3"
+    restart: unless-stopped
+    depends_on:
+      rdmariadb:
+        condition: service_healthy
+    ports:
+      - '80:80'
+      - "1812:1812/udp"
+      - "1813:1813/udp"
+
+  rdmariadb:
+    image: docker.io/bitnami/mariadb:10.5
+    container_name: radiusdesk-mariadb
+    restart: unless-stopped
+    volumes:
+      - ./db_conf/my_custom.cnf:/opt/bitnami/mariadb/conf/my_custom.cnf:ro
+      - ./db_startup:/docker-entrypoint-initdb.d:ro
+      - rd_data:/bitnami/mariadb
+    environment:
+      - "ALLOW_EMPTY_PASSWORD=yes"
+      - "MARIADB_ROOT_PASSWORD=rd"
+      - "MARIADB_USER=rd"
+      - "MARIADB_PASSWORD=rd"
+      - "MARIADB_DATABASE=rd"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "-prd"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  rd_data:
