@@ -1,6 +1,6 @@
 # Building Containers
-To build the containers I edited `supervisord.conf` in the original repo under the docker folder and I changed 
-`rdcore/cake4/rd_cake/config/app_local.php` here:
+To build the containers I edited `supervisord.conf` in the original repo (find it [here](supervisord.conf)) under the 
+docker folder and I changed [rdcore/cake4/rd_cake/config/app_local.php](supervisord.conf) here:
 ```
 'Datasources' => [
     'default' => [
