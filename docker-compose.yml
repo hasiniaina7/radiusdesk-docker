@@ -1,6 +1,6 @@
 services:
   radiusdesk:
-    image: keegan337/radiusdesk:4.0.0
+    image: keegan337/radiusdesk:4.0.1
     container_name: radiusdesk
     environment:
       - "PHP_INI_SCAN_DIR=:/p/gd"
@@ -12,7 +12,7 @@ services:
       rdmariadb:
         condition: service_healthy
     ports:
-      - '80:80'
+      - "80:80"
       - "1812:1812/udp"
       - "1813:1813/udp"
 
