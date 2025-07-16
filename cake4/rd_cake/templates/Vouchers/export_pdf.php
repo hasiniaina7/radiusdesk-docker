@@ -45,7 +45,7 @@ define('WWW_ROOT', __DIR__ . DS);
 require_once(ROOT . DS . 'vendor' . DS . "radiusdesk" . DS . "rdpdf" . DS . "rdpdf.php");
 
 // Define sample output instructions
-$output_instr = array(
+/*$output_instr = array(
     'format' => 'a4',
     'orientation' => 'P',
     'rtl' => false,
@@ -56,7 +56,7 @@ $output_instr = array(
     'profile_detail' => true,
     'extra_fields' => false,
     'logo_or_qr' => 'logo'
-);
+);*/
 
 //echo $voucher_data;
 // Define sample voucher data
@@ -109,7 +109,7 @@ function debug_console($data) {
 }
 
 debug_console($voucher_data);
-
+die();
 
 if(($output_instr['format'] == 'a4')||($output_instr['format'] == 'a4_page')){
 
@@ -141,12 +141,26 @@ if(($output_instr['format'] == 'a4')||($output_instr['format'] == 'a4_page')){
   $pdf->OutputInstr = $output_instr;
 
     // Fonction pour traiter les logos
-    function processLogo($originalPath) {
+    /*function processLogo($originalPath) {
         $pathInfo = pathinfo($originalPath);
 
         // Si c'est un PNG, essayer de le convertir
         if (strtolower($pathInfo['extension']) === 'png') {
             $jpegPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '.jpg';
+
+            if (convertPngToJpeg($originalPath, $jpegPath)) {
+                return $jpegPath;
+            }
+        }
+
+        return $originalPath;
+    }*/
+function processLogo($originalPath) {
+        $pathInfo = pathinfo($originalPath);
+
+        // Si c'est un PNG, essayer de le convertir
+        if (strtolower($pathInfo['extension']) === 'png') {
+            $jpegPath = 'webroot/img/realms/' . $pathInfo['filename'] . '.jpg';
 
             if (convertPngToJpeg($originalPath, $jpegPath)) {
                 return $jpegPath;
