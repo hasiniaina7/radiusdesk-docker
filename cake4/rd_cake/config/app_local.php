@@ -16,8 +16,8 @@ return [
      * true: Errors and warnings shown.
      */
     //'debug' => filter_var(env('DEBUG', true), FILTER_VALIDATE_BOOLEAN),
-    
-    //RADIUSdesk -> Change this to line above to troubleshoot   
+
+    //RADIUSdesk -> Change this to line above to troubleshoot
     'debug' => filter_var(env('DEBUG', true), FILTER_VALIDATE_BOOLEAN),
 
     /*
@@ -40,7 +40,7 @@ return [
      */
     'Datasources' => [
         'default' => [
-            'host'          => 'localhost',
+            'host'          => 'rdmariadb',
             'className'     => 'Cake\Database\Connection',
             'driver'        => 'Cake\Database\Driver\Mysql',
             'persistent'    => false,
@@ -54,7 +54,7 @@ return [
             'cacheMetadata' => true,
             'log'	        => false,
             'url'           => env('DATABASE_URL', null),
-        ], 
+        ],
 
 //==== FOR Postgresql =====
 /*
@@ -77,11 +77,11 @@ return [
 			GRANT ALL PRIVILEGES ON rd_cake3.* to 'rd_cake3'@'127.0.0.1' IDENTIFIED BY 'rd_cake3';
 			GRANT ALL PRIVILEGES ON rd_cake3.* to 'rd_cake3'@'localhost' IDENTIFIED BY 'rd_cake3';
 			exit;
-        
+
         */
-        
+
         'cake3' => [
-            'host' => 'localhost',
+            'host' => 'rdmariadb',
             'className' => 'Cake\Database\Connection',
             'driver' => 'Cake\Database\Driver\Mysql',
             'persistent' => false,
@@ -96,14 +96,14 @@ return [
             'log'	=> false,
             'url' => env('DATABASE_URL', null),
         ],
-        
+
 
         /*
          * The test connection is used during the test suite.
          */
          /* //OCT 2022 disable this one for Docker image to work//
         'test' => [
-            'host' => 'localhost',
+            'host' => 'rdmariadb',
             //'port' => 'non_standard_port_number',
             'username' => 'my_app',
             'password' => 'secret',
@@ -123,7 +123,7 @@ return [
      */
     'EmailTransport' => [
         'default' => [
-            'host' => 'localhost',
+            'host' => 'rdmariadb',
             'port' => 25,
             'username' => null,
             'password' => null,
