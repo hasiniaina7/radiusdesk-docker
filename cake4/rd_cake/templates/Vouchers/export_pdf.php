@@ -14,12 +14,11 @@ function convertPngToJpeg($pngPath, $jpegPath, $quality = 90) {
     $width = imagesx($image);
     $height = imagesy($image);
     $white_bg = imagecreatetruecolor($width, $height);
-    $white = imagecolorallocate($white_bg, 255, 255, 255);
-    imagefill($white_bg, 0, 0, $white);
+    $white = imagecolorallocate($white_bg, 0, 0, 0);
+  imagefill($white_bg, 0, 0, $white);
 
     // Fusionner l'image PNG avec le fond blanc
     imagecopymerge($white_bg, $image, 0, 0, 0, 0, $width, $height, 100);
-
     // Sauvegarder en JPEG
     $result = imagejpeg($white_bg, $jpegPath, $quality);
 
@@ -37,9 +36,9 @@ ini_set('display_errors', 0);
 ob_start();
 
 // Define constants
-define('ROOT', __DIR__);
-define('DS', DIRECTORY_SEPARATOR);
-define('WWW_ROOT', __DIR__ . DS);
+//define('ROOT', __DIR__);
+//define('DS', DIRECTORY_SEPARATOR);
+//define('WWW_ROOT', __DIR__ . DS);
 
 //require_once( "rdpdf.php");
 require_once(ROOT . DS . 'vendor' . DS . "radiusdesk" . DS . "rdpdf" . DS . "rdpdf.php");
@@ -102,7 +101,7 @@ require_once(ROOT . DS . 'vendor' . DS . "radiusdesk" . DS . "rdpdf" . DS . "rdp
     )
 );*/
 
-function debug_console($data) {
+/*function debug_console($data) {
     echo "<pre style='background:#111;color:#0f0;padding:10px;font-family:monospace;'>";
     print_r($data);
     echo "</pre>";
@@ -110,6 +109,8 @@ function debug_console($data) {
 
 debug_console($voucher_data);
 die();
+*/
+
 
 if(($output_instr['format'] == 'a4')||($output_instr['format'] == 'a4_page')){
 
@@ -155,7 +156,7 @@ if(($output_instr['format'] == 'a4')||($output_instr['format'] == 'a4_page')){
 
         return $originalPath;
     }*/
-function processLogo($originalPath) {
+/*function processLogo($originalPath) {
         $pathInfo = pathinfo($originalPath);
 
         // Si c'est un PNG, essayer de le convertir
@@ -169,7 +170,27 @@ function processLogo($originalPath) {
 
         return $originalPath;
     }
-    
+  */
+function processLogo($originalPath) {
+    $pathInfo = pathinfo($originalPath);
+
+    // Vérifier si le fichier existe
+    if (!file_exists($originalPath)) {
+        // Retourner le logo par défaut si le fichier n'existe pas
+        return '/img/realms/default_logo.jpg';
+    }
+
+    // Si c'est un PNG, essayer de le convertir
+    if (strtolower($pathInfo['extension']) === 'png') {
+        $jpegPath = '/img/realms/' . $pathInfo['filename'] . '.jpg';
+
+        if (convertPngToJpeg($originalPath, $jpegPath)) {
+            return $jpegPath;
+        }
+    }
+
+    return $originalPath;
+}  
     //A4 all vouchers per realm
    /* if($output_instr['format'] == 'a4'){
         foreach(array_keys($voucher_data) as $key){
@@ -190,8 +211,13 @@ if($output_instr['format'] == 'a4'){
         foreach(array_keys($voucher_data) as $key){
             $d = $voucher_data["$key"];
             // Traiter le logo
-            $logoPath = 'webroot/img/realms/'.$d['icon_file_name'];
-            $pdf->Logo = processLogo($logoPath);
+           /* $logoPath = 'webroot/img/realms/'.$d['icon_file_name'];
+            $pdf->Logo = processLogo($logoPath);*/
+		$logoPath = '/img/realms/'.$d['icon_file_name'];
+            $processedLogo = processLogo($logoPath);
+            
+            // Assigner le logo traité
+            $pdf->Logo = $processedLogo;
             $pdf->RealmDetail	= $d;
 
       // add a page
@@ -209,9 +235,14 @@ if($output_instr['format'] == 'a4'){
             foreach($d['vouchers'] as $v){
         $pdf->RealmDetail = $d;
                 // Traiter le logo
-                $logoPath = 'webroot/img/realms/'.$d['icon_file_name'];
-                $pdf->Logo = processLogo($logoPath);
+                /*$logoPath = 'webroot/img/realms/'.$d['icon_file_name'];
+                $pdf->Logo = processLogo($logoPath);*/
                 // add a page
+$logoPath = '/img/realms/'.$d['icon_file_name'];
+            $processedLogo = processLogo($logoPath);
+            
+            // Assigner le logo traité
+            $pdf->Logo = $processedLogo;
                 $pdf->AddPage();
                 $pdf->AddVouchers(array($v));
             }
@@ -233,8 +264,13 @@ if($output_instr['format'] == 'a4'){
         $d = $voucher_data["$key"];
         foreach($d['vouchers'] as $v){
             // Traiter le logo
-            $logoPath = 'webroot/img/realms/'.$d['icon_file_name'];
-            $pdf->Logo = processLogo($logoPath);
+           /* $logoPath = 'webroot/img/realms/'.$d['icon_file_name'];
+            $pdf->Logo = processLogo($logoPath);*/
+$logoPath = '/img/realms/'.$d['icon_file_name'];
+            $processedLogo = processLogo($logoPath);
+            
+            // Assigner le logo traité
+            $pdf->Logo = $processedLogo;
             $pdf->Add_Label($v);
         }
     } 
