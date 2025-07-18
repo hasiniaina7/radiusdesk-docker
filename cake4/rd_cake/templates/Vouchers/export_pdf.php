@@ -36,9 +36,9 @@ ini_set('display_errors', 0);
 ob_start();
 
 // Define constants
-//define('ROOT', __DIR__);
-//define('DS', DIRECTORY_SEPARATOR);
-//define('WWW_ROOT', __DIR__ . DS);
+define('ROOT',dirname(dirname(__DIR__)));
+define('DS', DIRECTORY_SEPARATOR);
+define('WWW_ROOT', __DIR__ . DS);
 
 //require_once( "rdpdf.php");
 require_once(ROOT . DS . 'vendor' . DS . "radiusdesk" . DS . "rdpdf" . DS . "rdpdf.php");
@@ -111,11 +111,57 @@ debug_console($voucher_data);
 die();
 */
 
+/*function processLogo($originalPath) {
+    $pathInfo = pathinfo($originalPath);
+
+    // Vérifier si le fichier existe
+    if (!file_exists($originalPath)) {
+        // Retourner le logo par défaut si le fichier n'existe pas
+        return '/img/realms/default_logo.jpg';
+    }
+
+    // Si c'est un PNG, essayer de le convertir
+    if (strtolower($pathInfo['extension']) === 'png') {
+        $jpegPath = '/img/realms/' . $pathInfo['filename'] . '.jpg';
+
+        if (convertPngToJpeg($originalPath, $jpegPath)) {
+            return $jpegPath;
+        }
+    }
+
+    return $originalPath;
+} */
+function processLogo($originalPath) {
+    // Construire le chemin complet
+    $fullPath = WWW_ROOT . ltrim($originalPath, '/');
+    $pathInfo = pathinfo($fullPath);
+
+    // Vérifier si le fichier existe
+    if (!file_exists($fullPath)) {
+        // Retourner le logo par défaut si le fichier n'existe pas
+        $fallbackPath = WWW_ROOT . 'img/realms/logo.png';
+        if (file_exists($fallbackPath)) {
+            return $fallbackPath;
+        }
+        return null; // Pas de logo si aucun fichier n'existe
+    }
+
+    // Si c'est un PNG, essayer de le convertir
+    if (strtolower($pathInfo['extension']) === 'png') {
+        $jpegPath = WWW_ROOT . 'img/realms/' . $pathInfo['filename'] . '.jpg';
+
+        if (convertPngToJpeg($fullPath, $jpegPath)) {
+            return $jpegPath;
+        }
+    }
+
+    return $fullPath;
+}   
 
 if(($output_instr['format'] == 'a4')||($output_instr['format'] == 'a4_page')){
 
   /*We use contants which had default values:
-  TCPDF::__construct 	( 	  	
+  TCPDF::__construct    (         
       $orientation = 'P',
         $unit = 'mm',
         $format = 'A4',
@@ -124,7 +170,7 @@ if(($output_instr['format'] == 'a4')||($output_instr['format'] == 'a4_page')){
         $diskcache = false,
         $pdfa = false 
   ) 
-  */		
+  */
 
     $pdf = new VoucherPdf($output_instr['orientation'], 'mm', 'A4', true, 'UTF-8', false);
 
@@ -171,26 +217,6 @@ if(($output_instr['format'] == 'a4')||($output_instr['format'] == 'a4_page')){
         return $originalPath;
     }
   */
-function processLogo($originalPath) {
-    $pathInfo = pathinfo($originalPath);
-
-    // Vérifier si le fichier existe
-    if (!file_exists($originalPath)) {
-        // Retourner le logo par défaut si le fichier n'existe pas
-        return '/img/realms/default_logo.jpg';
-    }
-
-    // Si c'est un PNG, essayer de le convertir
-    if (strtolower($pathInfo['extension']) === 'png') {
-        $jpegPath = '/img/realms/' . $pathInfo['filename'] . '.jpg';
-
-        if (convertPngToJpeg($originalPath, $jpegPath)) {
-            return $jpegPath;
-        }
-    }
-
-    return $originalPath;
-}  
     //A4 all vouchers per realm
    /* if($output_instr['format'] == 'a4'){
         foreach(array_keys($voucher_data) as $key){
@@ -198,7 +224,7 @@ function processLogo($originalPath) {
             // Traiter le logo
             $logoPath = 'img/realms/'.$d['icon_file_name'];
             $pdf->Logo = processLogo($logoPath);
-      $pdf->RealmDetail	= $d;
+      $pdf->RealmDetail = $d;
 
       // add a page
             $pdf->AddPage();
@@ -213,12 +239,12 @@ if($output_instr['format'] == 'a4'){
             // Traiter le logo
            /* $logoPath = 'webroot/img/realms/'.$d['icon_file_name'];
             $pdf->Logo = processLogo($logoPath);*/
-		$logoPath = '/img/realms/'.$d['icon_file_name'];
+                $logoPath = '/img/realms/'.$d['icon_file_name'];
             $processedLogo = processLogo($logoPath);
             
             // Assigner le logo traité
             $pdf->Logo = $processedLogo;
-            $pdf->RealmDetail	= $d;
+            $pdf->RealmDetail   = $d;
 
       // add a page
             $pdf->AddPage();
@@ -286,4 +312,3 @@ mb_internal_encoding('UTF-8');
 //===============================
 
 ?>
-
