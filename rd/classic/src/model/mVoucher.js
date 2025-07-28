@@ -3,7 +3,7 @@ Ext.define('Rd.model.mVoucher', {
     fields: [
          {name: 'id',           type: 'int'     },
          {name: 'owner',        type: 'string'  },
-		 {name: 'user_id',      type: 'int'  },
+		   {name: 'user_id',      type: 'int'  },
          {name: 'realm',        type: 'string'  },
          {name: 'realm_id'},
          {name: 'profile',      type: 'string'  },
@@ -29,6 +29,7 @@ Ext.define('Rd.model.mVoucher', {
          {name: 'delete',       type: 'bool'},
          {name: 'extra_name',   type: 'string'  },
          {name: 'extra_value',  type: 'string'  },
+         {name: 'prix',         type: 'float'},
          {name: 'created',           type: 'date'},
          {name: 'modified',          type: 'date'},
          {name: 'created_in_words',  type: 'string'  },

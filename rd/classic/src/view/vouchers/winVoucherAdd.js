@@ -219,6 +219,16 @@ Ext.define('Rd.view.vouchers.winVoucherAdd', {
                             },
                             items: [
                                 {
+                                    xtype       : 'numberfield',  // Changé de 'numberField' à 'numberfield' (minuscule)
+                                    name        : 'prix',
+                                    fieldLabel  : 'Prix',
+                                    allowBlank  : true,  // Changé de false à true pour éviter la validation obligatoire
+                                    labelClsExtra: 'lblRd',
+                                    value       : 0,     // Valeur par défaut
+                                    minValue    : 0,     // Prix minimum
+                                    decimalPrecision: 2  // Pour permettre les décimales
+                                },
+                                {
                                     xtype       : 'textfield',
                                     name        : 'extra_name',
                                     fieldLabel  : 'Extra field name',
