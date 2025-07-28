@@ -367,4 +367,12 @@ class UserStatsController extends AppController {
         }
     }
 
+    public function status() {
+        $this->set([
+            'success' => true,
+            'message' => __('UserStatsController is active')
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+    }
+
 }
