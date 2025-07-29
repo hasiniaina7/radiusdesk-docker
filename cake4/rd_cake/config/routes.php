@@ -27,68 +27,42 @@ use Cake\Routing\RouteBuilder;
 return static function (RouteBuilder $routes) {
     /*
      * The default class to use for all routes
-     *
-     * The following route classes are supplied with CakePHP and are appropriate
-     * to set as the default:
-     *
-     * - Route
-     * - InflectedRoute
-     * - DashedRoute
-     *
-     * If no call is made to `Router::defaultRouteClass()`, the class used is
-     * `Route` (`Cake\Routing\Route\Route`)
-     *
-     * Note that `Route` does not do any inflections on URLs which will result in
-     * inconsistently cased URLs when used with `{plugin}`, `{controller}` and
-     * `{action}` markers.
      */
     $routes->setRouteClass(DashedRoute::class);
 
     $routes->scope('/', function (RouteBuilder $builder) {
-    	//--RD tweak 2022 to serve .json and .xml files
-    	$builder->setExtensions(['json', 'xml']);
-    	//--END RD TWEAK
-        /*
-         * Here, we are connecting '/' (base path) to a controller called 'Pages',
-         * its action called 'display', and we pass a param to select the view file
-         * to use (in this case, templates/Pages/home.php)...
-         */
+        // Activer les extensions .json et .xml
+        $builder->setExtensions(['json', 'xml']);
+
+        // Route pour la page d'accueil
         $builder->connect('/', ['controller' => 'Pages', 'action' => 'display', 'home']);
 
-        /*
-         * ...and connect the rest of 'Pages' controller's URLs.
-         */
+        // Routes pour les autres pages du contrôleur Pages
         $builder->connect('/pages/*', 'Pages::display');
 
-        /*
-         * Connect catchall routes for all controllers.
-         *
-         * The `fallbacks` method is a shortcut for
-         *
-         * ```
-         * $builder->connect('/{controller}', ['action' => 'index']);
-         * $builder->connect('/{controller}/{action}/*', []);
-         * ```
-         *
-         * You can remove these routes once you've connected the
-         * routes you want in your application.
-         */
+        // Routes pour l'interface utilisateur
+        $builder->connect('/status', ['controller' => 'Pages', 'action' => 'status']);
+        $builder->connect('/login', ['controller' => 'Pages', 'action' => 'login']);
+
+        // Routes catch-all pour les autres contrôleurs
         $builder->fallbacks();
     });
 
-    /*
-     * If you need a different set of middleware or none at all,
-     * open new scope and define routes there.
-     *
-     * ```
-     * $routes->scope('/api', function (RouteBuilder $builder) {
-     *     // No $builder->applyMiddleware() here.
-     *
-     *     // Parse specified extensions from URLs
-     *     // $builder->setExtensions(['json', 'xml']);
-     *
-     *     // Connect API actions here.
-     * });
-     * ```
-     */
+    // Routes pour l'API proxy sécurisée
+    $routes->scope('/api-proxy', function (RouteBuilder $builder) {
+        // Activer les extensions .json pour les réponses API
+        $builder->setExtensions(['json']);
+
+        // Route pour récupérer les statistiques utilisateur
+        $builder->connect('/get-user-stats', 
+            ['controller' => 'ApiProxy', 'action' => 'getUserStats'],
+            ['_method' => ['GET', 'POST']]
+        );
+
+        // Route pour la déconnexion
+        $builder->connect('/logout', 
+            ['controller' => 'ApiProxy', 'action' => 'logout'],
+            ['_method' => 'POST']
+        );
+    });
 };

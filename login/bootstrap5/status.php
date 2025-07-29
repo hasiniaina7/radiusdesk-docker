@@ -64,8 +64,6 @@
     <span class="loader"></span>
 </div>
 
-
-
 <!-- Begin page content -->
 <main class="flex-shrink-1 mt-5 pt-4">
     <div class="container mt-4">
@@ -73,8 +71,6 @@
         <div class="row justify-content-center">
             <div class="col-md-8 col-lg-6">
                 <div class="card shadow">
-
-                    
                     <!-- Login Tabs -->
                     <div class="card-body p-0">
                         <ul class="nav nav-tabs login-tabs" id="loginTabs" role="tablist">
@@ -231,22 +227,28 @@ $(document).ready(function() {
     const $dashboardSection = $('#dashboardSection');
     const $alertWarn = $('#alertWarn');
 
-    let currentUser = localStorage.getItem('username') || '';
-    let currentType = localStorage.getItem('user_type') || 'user';
+    // Configuration sécurisée - Plus de tokens exposés !
+    const API_CONFIG = {
+        userStatsUrl: '/cake4/rd_cake/api-proxy/get-user-stats',  // Notre endpoint sécurisé
+        logoutUrl: '/cake4/rd_cake/api-proxy/logout'              // Notre endpoint de déconnexion
+    };
+
+    let currentUser = sessionStorage.getItem('username') || '';
+    let currentType = sessionStorage.getItem('user_type') || 'user';
     let refreshTimer;
 
-    // Save user info to localStorage
+    // Save user info to sessionStorage (plus sécurisé que localStorage)
     function saveUserInfo(username, userType) {
-        localStorage.setItem('username', username);
-        localStorage.setItem('user_type', userType);
+        sessionStorage.setItem('username', username);
+        sessionStorage.setItem('user_type', userType);
         currentUser = username;
         currentType = userType;
     }
 
-    // Clear user info from localStorage
+    // Clear user info from sessionStorage
     function clearUserInfo() {
-        localStorage.removeItem('username');
-        localStorage.removeItem('user_type');
+        sessionStorage.removeItem('username');
+        sessionStorage.removeItem('user_type');
         currentUser = '';
         currentType = 'user';
     }
@@ -280,30 +282,33 @@ $(document).ready(function() {
         refreshTimer = setTimeout(() => updateRefreshTimer(secondsLeft - 1), 1000);
     }
 
-    // Fetch data from API
+    // Fetch data from our secure API proxy
     function fetchData() {
         if (!currentUser) return;
+        
         $.ajax({
-            url: 'https://dev.techzone.lat/cake4/rd_cake/radaccts.json',
+            url: API_CONFIG.userStatsUrl,
             method: 'GET',
             data: {
                 username: currentUser,
-                from: '2025-07-01',
-                to: '2025-07-31',
-                limit: 1000,
-                order: 'Radacct.acctstarttime desc',
-                cloud_id: 23,
-                token: 'b4c6ac81-8c7c-4802-b50a-0a6380555b50',
-                page: 1,
                 type: currentType
             },
             headers: {
                 'Accept': 'application/json',
-                'X-Api-Key': 'b4c6ac81-8c7c-4802-b50a-0a6380555b50'
+                'X-Requested-With': 'XMLHttpRequest'
             },
-            success: function(data) {
-                console.log('Data received:', data);
-                updateDisplay(data);
+            success: function(response) {
+                console.log('Data received:', response);
+                if (response.success) {
+                    updateDisplay(response);
+                } else {
+                    console.error('API Error:', response.message);
+                    updateDisplay({
+                        totalIn: 'Error',
+                        totalOut: 'Error',
+                        totalInOut: 'Error'
+                    });
+                }
                 updateRefreshTimer(30);
             },
             error: function(xhr, status, error) {
@@ -324,9 +329,9 @@ $(document).ready(function() {
             $loginSection.addClass('d-none');
             $dashboardSection.removeClass('d-none');
             updateDisplay({
-                totalIn: 1024000,
-                totalOut: 512000,
-                totalInOut: 1536000
+                totalIn: 0,
+                totalOut: 0,
+                totalInOut: 0
             });
             fetchData();
             setInterval(fetchData, 30000);
@@ -389,8 +394,11 @@ $(document).ready(function() {
     $('#btnDisconnect').on('click', function() {
         if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
             $.ajax({
-                url: 'https://login.techzone.lat/logout',
-                method: 'POST'
+                url: API_CONFIG.logoutUrl,
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
             }).always(function() {
                 clearUserInfo();
                 $dashboardSection.addClass('d-none');
@@ -399,7 +407,8 @@ $(document).ready(function() {
                 $('#frmVoucherLogin')[0].reset();
                 $alertWarn.addClass('collapse');
                 $('#user-tab').tab('show');
-                window.location = 'https://login.techzone.lat/login';
+                // Redirection optionnelle
+                // window.location = '/login';
             });
         }
     });

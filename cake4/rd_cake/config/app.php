@@ -423,4 +423,25 @@ return [
     'Session' => [
         'defaults' => 'php',
     ],
+
+    /** RaduisAPi */
+
+    'RadiusApi' => [
+        // URL de l'API
+        'url' => env('RADIUS_API_URL', 'https://dev.techzone.lat/cake4/rd_cake/radaccts.json'),
+        
+        // Token d'authentification
+        'token' => env('RADIUS_API_TOKEN', 'b4c6ac81-8c7c-4802-b50a-0a6380555b50'),
+        
+        // Clé API
+        'api_key' => env('RADIUS_API_KEY', 'b4c6ac81-8c7c-4802-b50a-0a6380555b50'),
+        
+        // Cloud ID
+        'cloud_id' => env('RADIUS_CLOUD_ID', 23),
+        
+        // Configuration logout
+        'logout' => [
+            'url' => env('RADIUS_LOGOUT_URL', 'https://login.techzone.lat/logout')
+        ]
+    ],
 ];
