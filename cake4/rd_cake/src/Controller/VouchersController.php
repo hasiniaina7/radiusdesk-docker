@@ -53,8 +53,16 @@ class VouchersController extends AppController{
         $heading_line   = [];
         if(isset($req_q['columns'])){
             $columns = json_decode($req_q['columns']);
+            // echo json_encode($columns);
+            // die();
             foreach($columns as $c){
-                array_push($heading_line,$c->name);
+                if($c->name == 'extra_value'){
+                    array_push($heading_line,'Prix');
+                }elseif($c->name == 'extra_name'){
+                    array_push($heading_line,'Nom');
+                }else{
+                    array_push($heading_line,$c->name);
+                }
             }
         }
         
