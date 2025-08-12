@@ -862,6 +862,271 @@ class VouchersController extends AppController{
         }
     }
 
+    // public function usedVouchersPrice() {
+        //     $user = $this->_ap_right_check();
+        //     if (!$user) {
+        //         return;
+        //     }
+
+        //     $req_q = $this->request->getQuery();
+
+        //     echo json_encode($this->request->getData());
+        //     die();
+        //     $cloud_id = $req_q['cloud_id'] ?? null;
+        //     $startDate = $req_q['start_date'] ?? null;
+        //     $endDate = $req_q['end_date'] ?? null;
+
+        //     if (!$cloud_id || !$startDate || !$endDate) {
+        //         $this->JsonErrors->errorMessage('cloud_id, start_date, and end_date are required parameters');
+        //         return;
+        //     }
+
+        //     // Validate and format dates
+        //     try {
+        //         $startDate = new \DateTime($startDate);
+        //         $endDate = new \DateTime($endDate);
+        //         if ($endDate < $startDate) {
+        //             $this->JsonErrors->errorMessage('end_date must be greater than or equal to start_date');
+        //             return;
+        //         }
+        //     } catch (\Exception $e) {
+        //         $this->JsonErrors->errorMessage('Invalid date format. Use YYYY-MM-DD');
+        //         return;
+        //     }
+
+        //     // Build the query for used vouchers
+        //     $query = $this->{$this->main_model}->find()
+        //         ->where(['status' => 'used'])
+        //         ->contain(['Radaccts' => function ($q) use ($startDate, $endDate) {
+        //             return $q->where(['acctstarttime BETWEEN :start AND :end'])
+        //                 ->bind(':start', $startDate->format('Y-m-d 00:00:00'))
+        //                 ->bind(':end', $endDate->format('Y-m-d 23:59:59'));
+        //         }]);
+
+        //     $this->CommonQueryFlat->build_cloud_query($query, $cloud_id);
+
+        //     $q_r = $query->all();
+
+        //     // Calculate total price
+        //     $totalPrice = 0;
+        //     foreach ($q_r as $voucher) {
+        //         $price = floatval($voucher->extra_value) ?: 0; // Ensure extra_value is treated as a float, default to 0 if invalid
+        //         $totalPrice += $price;
+        //     }
+
+        //     // echo json_encode([
+        //     //     'data' => [
+        //     //         'total_price' => $totalPrice,
+        //     //         'start_date' => $startDate->format('Y-m-d'),
+        //     //         'end_date' => $endDate->format('Y-m-d'),
+        //     //         'voucher_count' => $q_r->count()
+        //     //     ],
+        //     //     'success' => true
+        //     // ]);
+        //     // die();
+
+        //     $this->set([
+        //         'data' => [
+        //             'total_price' => $totalPrice,
+        //             'start_date' => $startDate->format('Y-m-d'),
+        //             'end_date' => $endDate->format('Y-m-d'),
+        //             'voucher_count' => $q_r->count()
+        //         ],
+        //         'success' => true
+        //     ]);
+        //     $this->viewBuilder()->setOption('serialize', true);
+    // }
+
+    // public function usedVouchersPrice() {
+        //     $user = $this->_ap_right_check();
+        //     if (!$user) {
+        //         return;
+        //     }
+        
+        //     $req_q = $this->request->getData();
+        //     $cloud_id = $req_q['cloud_id'] ?? null;
+        //     $startDate = $req_q['start_date'] ?? null;
+        //     $endDate = $req_q['end_date'] ?? null;
+        
+        //     if (!$cloud_id || !$startDate || !$endDate) {
+        //         $this->JsonErrors->errorMessage('cloud_id, start_date, and end_date are required parameters');
+        //         return;
+        //     }
+        
+        //     try {
+        //         $startDate = new \DateTime($startDate);
+        //         $endDate = new \DateTime($endDate);
+        //         if ($endDate < $startDate) {
+        //             $this->JsonErrors->errorMessage('end_date must be greater than or equal to start_date');
+        //             return;
+        //         }
+        //     } catch (\Exception $e) {
+        //         $this->JsonErrors->errorMessage('Invalid date format. Use YYYY-MM-DD');
+        //         return;
+        //     }
+        
+        //     // Query used vouchers
+        //     $query = $this->{$this->main_model}->find()
+        //     ->join([
+        //         'Radaccts' => [
+        //             'table' => 'radius.radaccts',
+        //             'type' => 'INNER',
+        //             'conditions' => [
+        //                 'Radaccts.username = Vouchers.name',
+        //                 'Radaccts.acctstarttime >=' => $startDate->format('Y-m-d 00:00:00'),
+        //                 'Radaccts.acctstarttime <=' => $endDate->format('Y-m-d 23:59:59')
+        //             ]
+        //         ]
+        //     ])
+        //     ->where(['Vouchers.status' => 'new']);
+
+
+        //         // ->contain(['Radaccts' => function ($q) use ($startDate, $endDate) {
+        //         //     return $q->where([
+        //         //         'acctstarttime BETWEEN :start AND :end'
+        //         //     ])
+        //         //     ->bind(':start', $startDate->format('Y-m-d 00:00:00'))
+        //         //     ->bind(':end', $endDate->format('Y-m-d 23:59:59'));
+        //         // }]);
+        
+        //     $this->CommonQueryFlat->build_cloud_query($query, $cloud_id);
+        
+        //     $vouchers = $query->all();
+
+        //     echo json_encode($vouchers);
+        //     die();
+
+        //     $usedVouchers = [];
+        //     $totalPrice = 0;
+        //     foreach ($vouchers as $voucher) {
+        //         $radacct = $this->Radaccts->find()
+        //             ->where([
+        //                 'username' => $voucher->name,
+        //                 'acctstarttime >=' => $startDate->format('Y-m-d 00:00:00'),
+        //                 'acctstarttime <=' => $endDate->format('Y-m-d 23:59:59')
+        //             ])
+        //             ->first();
+        
+        //         if ($radacct) {
+        //             $price = floatval($voucher->extra_value) ?: 0;
+        //             $totalPrice += $price;
+        //             $usedVouchers[] = [
+        //                 'id' => $voucher->id,
+        //                 'name' => $voucher->name,
+        //                 'price' => $price,
+        //                 'profile' => $voucher->profile,
+        //                 'extra_name' => $voucher->extra_name,
+        //                 'extra_value' => $voucher->extra_value,
+        //                 'acctstarttime' => $radacct->acctstarttime,
+        //                 'acctstoptime' => $radacct->acctstoptime
+        //             ];
+        //         }
+        //     }
+        
+        //     // // Calculate total price
+        //     // $totalPrice = 0;
+        //     // foreach ($vouchers as $voucher) {
+        //     //     $price = floatval($voucher->extra_value) ?: 0;
+        //     //     $totalPrice += $price;
+        //     // }
+        
+        //     // Return both the list and totals
+        //     $this->set([
+        //         'data' => [
+        //             'total_price' => $totalPrice,
+        //             'start_date' => $startDate->format('Y-m-d'),
+        //             'end_date' => $endDate->format('Y-m-d'),
+        //             'voucher_count' => count($usedVouchers),
+        //             'vouchers' => $usedVouchers  // 👈 This lists them
+        //         ],
+        //         'success' => true
+        //     ]);
+        //     $this->viewBuilder()->setOption('serialize', true);
+    // }
+
+    public function usedVouchersPrice() {
+        $user = $this->_ap_right_check();
+        if (!$user) {
+            return;
+        }
+    
+        $req_q = $this->request->getData();
+        $cloud_id = $req_q['cloud_id'] ?? null;
+        $startDate = $req_q['start_date'] ?? null;
+        $endDate = $req_q['end_date'] ?? null;
+    
+        if (!$cloud_id || !$startDate || !$endDate) {
+            $this->JsonErrors->errorMessage('cloud_id, start_date, and end_date are required parameters');
+            return;
+        }
+    
+        try {
+            $startDate = new \DateTime($startDate);
+            $endDate = new \DateTime($endDate);
+            if ($endDate < $startDate) {
+                $this->JsonErrors->errorMessage('end_date must be greater than or equal to start_date');
+                return;
+            }
+        } catch (\Exception $e) {
+            $this->JsonErrors->errorMessage('Invalid date format. Use YYYY-MM-DD');
+            return;
+        }
+    
+        // --- 1️⃣ Récupérer les vouchers (base rd) ---
+        $query = $this->{$this->main_model}->find()
+            ->where(['status' => 'depleted']);
+        $this->CommonQueryFlat->build_cloud_query($query, $cloud_id);
+        $vouchers = $query->all();
+    
+        // --- 2️⃣ Charger radaccts depuis la base radius ---
+        $this->loadModel('Radaccts', 'Radius'); // Connexion 'Radius' définie dans config/app.php
+    
+        $radaccts = $this->Radaccts->find()
+            ->select(['username', 'acctstarttime', 'acctstoptime'])
+            // ->where([
+            //     'acctstarttime >=' => $startDate->format('Y-m-d 00:00:00'),
+            //     'acctstarttime <=' => $endDate->format('Y-m-d 23:59:59')
+            // ])
+            ->all()
+            ->groupBy('username')
+            ->toArray(); // On groupe par username pour accès rapide
+    
+
+        // --- 3️⃣ Associer les données ---
+        $usedVouchers = [];
+        $totalPrice = 0;
+    
+        foreach ($vouchers as $voucher) {
+            if (isset($radaccts[$voucher->name])) {
+                $price = floatval(substr($voucher->extra_value,0,-2)) ?: 0;
+                $totalPrice += $price;
+                foreach ($radaccts[$voucher->name] as $rad) {
+                    $usedVouchers[] = [
+                        'id' => $voucher->id,
+                        'name' => $voucher->name,
+                        'price' => $price,
+                        'profile' => $voucher->profile,
+                        'acctstarttime' => $rad->acctstarttime,
+                        'acctstoptime' => $rad->acctstoptime
+                    ];
+                }
+            }
+        }
+    
+        // --- 4️⃣ Réponse JSON ---
+        $this->set([
+            'data' => [
+                'total_price' => $totalPrice,
+                'start_date' => $startDate->format('Y-m-d'),
+                'end_date' => $endDate->format('Y-m-d'),
+                'voucher_count' => count($usedVouchers),
+                'vouchers' => $usedVouchers
+            ],
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+    }
+
     public function pdfExportSettings(){
 		Configure::load('Vouchers'); 
         $data  = Configure::read('voucher_dafaults'); //Read the defaults
