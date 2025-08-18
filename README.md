@@ -25,7 +25,7 @@ The [app_local.php](src/app_local.php) file specifies the details in the origina
 
 ## Dockerhub
 
-The container can be found on Dockerhub [here](https://hub.docker.com/repository/docker/keegan337/radiusdesk/general).
+The container can be found on Dockerhub [here](https://hub.docker.com/r/keegan337/radiusdesk).
 
 ## Publishing
 
