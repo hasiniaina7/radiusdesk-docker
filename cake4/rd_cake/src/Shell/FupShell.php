@@ -166,7 +166,7 @@ class FupShell extends Shell {
 					$apply_record = $c;
 					break;				
 				}
-				if($return_action == 'limit'){				
+				if($return_action == 'limit'){			
 					$limits[$c->id] = $c;
 				}   		
     		}else{    		
@@ -177,7 +177,7 @@ class FupShell extends Shell {
 					$apply_record = $c;
 					break;				
 				}
-				if($return_usage == 'limit'){				
+				if($return_usage == 'limit'){			
 					$limits[$c->id] = $c;
 				}     				    		
     		}   	
@@ -186,6 +186,7 @@ class FupShell extends Shell {
     	if($should_apply !== 0){ //Should apply is set on a 'block' if it is set we dont have to worry about throttle calculations
     	
     		$this->out("<info>Block Active </info>");
+			$this->kickOff($username,$cloud_id,"FUP_LIMIT_EXCEEDED");
     		
     	}else{	
 			
@@ -313,7 +314,7 @@ class FupShell extends Shell {
 				//$this->out("<info>BLOCK</info>");
 				return 'block';
 			}else{
-				//$this->out("<info>LIMIT</info>");			
+				//$this->out("<info>LIMIT</info>");		
 				return 'limit';
 			}
 		}
@@ -387,7 +388,92 @@ class FupShell extends Shell {
     	//$this->out("<info>Billing Cycle Start Time IS $bc_start</info>");   	
     	return $bc_start;  
     }
-	     		
+
+    /**
+	 * Méthode pour déconnecter (kick off) un utilisateur
+	 */
+	private function kickOff($username, $cloud_id, $reason = 'FUP_LIMIT_EXCEEDED'){
+		
+		// Vérifier si l'utilisateur est actuellement connecté
+		$active_sessions = $this->{'Radaccts'}->find()
+			->where([
+				'Radaccts.username' => $username, 
+				'Radaccts.acctstoptime IS NULL'
+			])
+			->all();
+			
+		if(empty($active_sessions)){
+			$this->out("<info>User $username is not currently connected - No kick off needed</info>");
+			return false;
+		}
+		
+		$this->out("<warning>User $username is currently connected - Proceeding with kick off (Reason: $reason)</warning>");
+		
+		// Récupérer les informations du cloud
+		$e_cloud = $this->{'Clouds'}->find()->where(['Clouds.id' => $cloud_id])->first();
+		if(!$e_cloud){
+			$this->out("<error>Cloud not found for user $username</error>");
+			return false;
+		}
+		
+		// Récupérer les informations de l'utilisateur propriétaire du cloud
+		$user_id = $e_cloud->user_id;
+		$e_user = $this->{'Users'}->find()->where(['Users.id' => $user_id])->first();
+		if(!$e_user){
+			$this->out("<error>User not found for cloud $cloud_id</error>");
+			return false;
+		}
+		
+		$token = $e_user->token;
+		
+		// Pour chaque session active, utiliser le KickerComponent pour déconnecter
+		$kicked_count = 0;
+		
+		foreach($active_sessions as $session) {
+			try {
+				// Charger le KickerComponent
+				$this->loadComponent('Kicker', [
+					'components' => ['MikrotikApi']
+				]);
+				
+				// Appeler la méthode kick du KickerComponent
+				$result = $this->Kicker->kick($session, $token);
+				
+				$this->out("<success>Kick off request sent for session " . $session->radacctid . " of user $username</success>");
+				$kicked_count++;
+				
+			} catch (Exception $e) {
+				$this->out("<error>Failed to kick off session " . $session->radacctid . " for user $username: " . $e->getMessage() . "</error>");
+				
+				// Fallback: utiliser l'approche HTTP si le composant échoue
+				try {
+					$url = 'http://127.0.0.1/cake4/rd_cake/radaccts/kick-active-username.json';
+					$request = [
+						'cloud_id' => $cloud_id,
+						'username' => $username,
+						'token' => $token,
+						'session_id' => $session->radacctid
+					];
+					
+					$http = new Client();
+					$response = $http->get($url, $request, ['type' => 'json']);
+					
+					$this->out("<info>Fallback HTTP kick attempted for session " . $session->radacctid . "</info>");
+					
+				} catch (Exception $fallback_error) {
+					$this->out("<error>Fallback also failed for session " . $session->radacctid . ": " . $fallback_error->getMessage() . "</error>");
+				}
+			}
+		}
+		
+		if($kicked_count > 0) {
+			$this->out("<success>Successfully kicked $kicked_count active sessions for user $username</success>");
+			return true;
+		} else {
+			$this->out("<error>Failed to kick any sessions for user $username</error>");
+			return false;
+		}
+	}	
 }
 
 ?>
